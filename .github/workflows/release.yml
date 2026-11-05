@@ -1,0 +1,98 @@
+# v* 태그를 올리면 윈도우 설치 파일과 맥 dmg(Apple Silicon·Intel)를 만들어 GitHub Release에 올린다.
+#   git tag v0.2.0 && git push origin v0.2.0
+# 수동 실행(workflow_dispatch)은 빌드 결과를 Actions 아티팩트로만 남긴다.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows-x64
+          - os: macos-14
+            target: mac-apple-silicon
+          - os: macos-15-intel
+            target: mac-intel
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: 버전
+        id: ver
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF#refs/tags/v}"; else v="0.0.0-dev"; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: 의존성 설치
+        run: uv sync --group build --frozen || uv sync --group build
+
+      - name: PyInstaller 빌드
+        run: uv run --group build pyinstaller packaging/pdf-ko-translate.spec --noconfirm --distpath build/dist --workpath build/work
+
+      # ---------------- 맥: 서명 없이 ad-hoc 서명 → dmg
+      - name: ad-hoc 서명 (Apple Silicon은 서명 없는 앱을 실행하지 않음)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          APP="build/dist/PDF 번역기.app"
+          find "$APP/Contents" -type f \( -name "*.dylib" -o -name "*.so" -o -perm +111 \) -print0 |
+            while IFS= read -r -d '' f; do file "$f" | grep -q Mach-O && codesign --force -s - "$f"; done
+          codesign --force -s - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: dmg 만들기
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p build/dmg build/installer
+          cp -R "build/dist/PDF 번역기.app" build/dmg/
+          ln -s /Applications build/dmg/Applications
+          cp packaging/맥에서_처음_열기.txt build/dmg/ || true
+          hdiutil create -volname "PDF 번역기" -srcfolder build/dmg -ov -format UDZO \
+            "build/installer/PDF-Translator-${{ steps.ver.outputs.version }}-${{ matrix.target }}.dmg"
+
+      # ---------------- 윈도우: Inno Setup 설치 파일
+      - name: 아이콘(.ico)
+        if: runner.os == 'Windows'
+        run: uv run --group build python -c "from PIL import Image; Image.open('src/pdf_ko_translate/web/icon.png').save('build/icon.ico', sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+
+      - name: 설치 파일 만들기
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y | Out-Null
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=${{ steps.ver.outputs.version }}" packaging\installer.iss
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: build/installer/*
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

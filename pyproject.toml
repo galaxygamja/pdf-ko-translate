@@ -1,0 +1,26 @@
+[project]
+name = "pdf-ko-translate"
+version = "0.2.0"
+description = "영어 PDF를 레이아웃을 유지한 채 한국어로 번역"
+readme = "README.md"
+authors = [
+    { name = "galaxygamja", email = "galaxygamja@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fonttools>=4.67.0",
+    "pymupdf>=2.0",
+    "pywebview>=6.2.1",
+    "pythonnet>=3.0; sys_platform == 'win32'",
+]
+
+[dependency-groups]
+build = ["pyinstaller>=6.10", "pillow>=10"]
+
+[project.scripts]
+pdf-ko-translate = "pdf_ko_translate:main"
+pdf-ko-translate-app = "pdf_ko_translate.app:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
