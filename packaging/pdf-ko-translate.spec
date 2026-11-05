@@ -22,7 +22,12 @@ a = Analysis(
     pathex=[str(ROOT / "src")],
     datas=[(str(PKG / "web"), "pdf_ko_translate/web")],
     hiddenimports=hidden,
-    excludes=["tkinter", "matplotlib", "numpy", "PIL.ImageQt"],
+    # PyMuPDF 2.0이 끌어오는 레이아웃·LLM용 패키지와 아이콘 변환용 Pillow는 앱에 필요 없다.
+    # 특히 PIL의 __dot__dylibs 심볼릭 링크는 맥 codesign 봉인을 깨뜨린다.
+    excludes=[
+        "tkinter", "matplotlib", "numpy", "PIL", "onnxruntime", "pymupdf_layout", "pymupdf.layout",
+        "pymupdf4llm", "networkx", "yaml", "psutil", "tabulate", "sympy",
+    ],
 )
 pyz = PYZ(a.pure)
 exe = EXE(
@@ -30,7 +35,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name=NAME,
+    name="PDFTranslator" if sys.platform == "darwin" else NAME,  # 맥 실행 파일은 ASCII 이름 (codesign 안정성)
     console=False,  # 창 앱. 번역 작업(--run-cli)의 출력은 파이프로 앱이 읽는다
     icon=ICON,
     argv_emulation=False,

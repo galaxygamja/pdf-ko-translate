@@ -9,7 +9,9 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "fonttools>=4.67.0",
-    "pymupdf>=2.0",
+    # PyMuPDF 2.0은 Intel 맥용 배포판이 없다. Intel 맥만 1.28 계열을 쓴다 (출력이 같음을 확인함)
+    "pymupdf>=2.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+    "pymupdf>=1.28,<2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
     "pywebview>=6.2.1",
     "pythonnet>=3.0; sys_platform == 'win32'",
 ]
@@ -25,6 +27,3 @@ pdf-ko-translate-app = "pdf_ko_translate.app:main"
 requires = ["uv_build>=0.12.17,<0.13.0"]
 build-backend = "uv_build"
 
-[tool.uv]
-# PyMuPDF 2.0 → pymupdf-layout이 끌어오는 onnxruntime은 Intel 맥용 배포판이 없다. 이 프로그램은 레이아웃 기능을 쓰지 않으므로 빼도 된다
-override-dependencies = ["onnxruntime; sys_platform != 'darwin' or platform_machine != 'x86_64'"]
