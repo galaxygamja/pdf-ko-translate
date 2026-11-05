@@ -1,7 +1,7 @@
 ﻿; Inno Setup 스크립트: 윈도우 설치 파일 (PyInstaller가 만든 "PDF 번역기" 폴더를 설치)
-; 실행: iscc /DAppVersion=0.2.0 packaging\installer.iss
+; 실행: iscc /DAppVersion=0.2.1 packaging\installer.iss
 #ifndef AppVersion
-  #define AppVersion "0.2.0"
+  #define AppVersion "0.2.1"
 #endif
 #define AppName "PDF 번역기"
 

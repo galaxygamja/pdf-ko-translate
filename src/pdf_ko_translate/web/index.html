@@ -6,224 +6,256 @@
 <title>PDF 번역기</title>
 <style>
 :root {
-  --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1c1a; --muted: #6f6c66; --line: #e4e1da;
-  --accent: #2f5d50; --accent-ink: #ffffff; --accent-soft: #e3ece8;
-  --warn: #9a5b00; --warn-soft: #fbf0dd; --err: #a3312a; --err-soft: #f8e4e2; --ok: #2f6b3a;
-  --radius: 12px;
+  --desk: #e6e9ed; --paper: #ffffff; --ink: #1e2740; --muted: #5f6878; --faint: #8d95a3;
+  --rule: #d3d8df; --line: #e4e7ec; --blue: #2d4fa0; --blue-ink: #ffffff; --blue-soft: #e4eaf6;
+  --red: #b83a2e; --red-soft: #f6e3e0; --ok: #2f6b4a;
+  --shadow: 0 1px 2px rgba(30, 39, 64, .08), 0 8px 28px rgba(30, 39, 64, .10);
+  --serif: "AppleMyungjo", "Batang", "바탕", "Noto Serif KR", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161716; --panel: #1f201f; --ink: #ecebe7; --muted: #a09d96; --line: #333431;
-    --accent: #7fb7a5; --accent-ink: #10201b; --accent-soft: #23302c;
-    --warn: #e3ae5a; --warn-soft: #33291a; --err: #ec8a82; --err-soft: #3a2220; --ok: #8cc79a;
+    --desk: #16191e; --paper: #20242b; --ink: #e3e7ee; --muted: #a2aab7; --faint: #78808d;
+    --rule: #343943; --line: #2b3038; --blue: #93abea; --blue-ink: #121a2e; --blue-soft: #232c40;
+    --red: #e8806f; --red-soft: #3a2522; --ok: #8fcaa6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .35);
   }
 }
 * { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Segoe UI", "Pretendard", sans-serif;
-}
-main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
-.sub { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-h2 { font-size: 15px; margin: 0 0 12px; }
-button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 14px; }
-button:hover:not(:disabled) { border-color: var(--muted); }
-button:disabled { opacity: .5; cursor: default; }
-button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; padding: 10px 20px; }
-button.link { border: none; background: none; color: var(--muted); padding: 4px 6px; font-size: 13px; }
-button.link:hover { color: var(--ink); }
+html { background: var(--desk); }
+body { margin: 0; background: var(--desk); color: var(--ink); font: 15px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+main { max-width: 860px; margin: 0 auto; padding: 28px 24px 48px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
-#drop {
-  border: 2px dashed var(--line); border-radius: var(--radius); padding: 36px 16px; text-align: center;
-  cursor: pointer; transition: border-color .15s, background .15s;
-}
-#drop.over { border-color: var(--accent); background: var(--accent-soft); }
-#drop .big { font-size: 16px; font-weight: 600; }
-#drop .small { color: var(--muted); font-size: 13px; margin-top: 4px; }
-#chosen { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
-#chosen .fname { font-weight: 600; word-break: break-all; }
-#chosen .fsize { color: var(--muted); font-size: 13px; }
+/* ---------- 머리 */
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.top h1 { font: 600 26px/1.2 var(--serif); margin: 0; letter-spacing: -0.01em; }
+.top p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.quiet { background: none; border: none; color: var(--muted); padding: 4px 2px; font-size: 14px; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.quiet:hover { color: var(--ink); text-decoration-color: currentColor; }
 
-details.settings { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
-details.settings summary { cursor: pointer; color: var(--muted); font-size: 14px; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; margin-top: 14px; }
-@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+/* ---------- 책상: 종이 + 조작부 */
+.desk { display: grid; grid-template-columns: minmax(240px, 300px) 1fr; gap: 36px; align-items: start; }
+@media (max-width: 700px) { .desk { grid-template-columns: 1fr; gap: 24px; } }
+
+/* 종이 한 장. 이 화면에서 그림자를 가진 유일한 요소 */
+.sheet {
+  position: relative; aspect-ratio: 1 / 1.3; background: var(--paper); box-shadow: var(--shadow);
+  border-radius: 3px; padding: 28px 26px; display: flex; flex-direction: column; cursor: pointer;
+  border: none; text-align: left; width: 100%;
+}
+@media (max-width: 700px) { .sheet { aspect-ratio: auto; min-height: 260px; } }
+.sheet.over { outline: 2px dashed var(--blue); outline-offset: 6px; }
+.sheet.busy { cursor: default; }
+.sheet .title { font: 600 19px/1.4 var(--serif); margin: 0 0 4px; word-break: break-word; min-height: 1.4em; }
+.sheet .title.placeholder { color: var(--faint); font-weight: 400; }
+.sheet .meta { color: var(--muted); font-size: 13px; margin-bottom: 18px; min-height: 1.6em; }
+.lines { flex: 1; display: flex; flex-direction: column; gap: 9px; overflow: hidden; }
+.lines i { display: block; height: 5px; border-radius: 3px; background: var(--line); transition: background-color .5s ease; flex: none; }
+.lines i.gap { background: none; height: 4px; }
+.lines i.ink { background: var(--blue); }
+.sheet .hint { position: absolute; left: 26px; right: 26px; bottom: 22px; color: var(--muted); font-size: 13px; }
+.sheet .hint b { color: var(--ink); font-weight: 600; }
+
+/* 조작부 */
+.controls { min-width: 0; }
+.block + .block { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.label { font-size: 14px; font-weight: 600; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; }
+.label .quiet { font-weight: 400; font-size: 13px; }
+
+/* 엔진 전환 */
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; padding: 3px; background: var(--paper); }
+.seg button { border: none; background: none; border-radius: 6px; padding: 7px 18px; font-weight: 600; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
+.seg button[aria-checked="true"] { background: var(--blue); color: var(--blue-ink); }
+.seg .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.seg button[aria-checked="true"] .dot { background: var(--blue-ink); }
+.status { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+.status.ok { color: var(--ok); }
+.status-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* 버튼 */
+.btn { border: 1px solid var(--rule); background: var(--paper); border-radius: 7px; padding: 7px 14px; font-size: 14px; }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); font-weight: 600; padding: 11px 26px; font-size: 15px; }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); border-color: var(--blue); }
+.btn.danger { color: var(--red); }
+
+/* 설정 */
+details.settings summary { cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px; }
+details.settings summary::-webkit-details-marker { display: none; }
+details.settings summary::before { content: ""; width: 0; height: 0; border: 5px solid transparent; border-left: 6px solid var(--muted); transition: transform .15s; margin-left: 2px; }
+details.settings[open] summary::before { transform: rotate(90deg) translateX(2px); }
+details.settings summary .sum { font-weight: 400; color: var(--muted); font-size: 13px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-top: 14px; }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
 .field label.t { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-.field .hint { font-size: 12px; color: var(--muted); margin-top: 3px; }
-input[type=text], select { width: 100%; font: inherit; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+.field .hint { font-size: 12px; color: var(--faint); margin-top: 3px; }
+input[type=text], select { width: 100%; font: inherit; font-size: 14px; padding: 7px 9px; border: 1px solid var(--rule); border-radius: 7px; background: var(--paper); color: var(--ink); }
 .check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
-.check input { margin-top: 4px; }
-.actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
-.err { color: var(--err); font-size: 14px; }
+.check input { margin-top: 5px; accent-color: var(--blue); }
+.check .hint { display: block; font-size: 12px; color: var(--faint); }
+.wide { grid-column: 1 / -1; }
+.start-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.err { color: var(--red); font-size: 14px; }
 
-.steps { list-style: none; padding: 0; margin: 4px 0 14px; display: grid; gap: 6px; }
-.steps li { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 14px; }
-.steps li .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; font-size: 11px; }
-.steps li.active { color: var(--ink); font-weight: 600; }
-.steps li.active .dot { border-color: var(--accent); border-top-color: transparent; animation: spin 1s linear infinite; }
+/* 진행 단계: 실제 순서가 있는 절차라 번호를 붙인다 */
+.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 7px; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: center; font-size: 14px; color: var(--faint); }
+.steps li::before { content: counter(step); width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--rule); display: grid; place-items: center; font-size: 12px; }
 .steps li.done { color: var(--ink); }
-.steps li.done .dot { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.steps li.done .dot::after { content: "✓"; }
-.steps li .extra { font-weight: 400; color: var(--muted); font-size: 13px; }
+.steps li.done::before { content: "✓"; background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
+.steps li.active { color: var(--ink); font-weight: 600; }
+.steps li.active::before { border-color: var(--blue); border-right-color: transparent; animation: spin 1s linear infinite; content: ""; }
+.steps li .extra { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
-.bar > div { height: 100%; width: 0; background: var(--accent); transition: width .4s; }
-.meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-top: 6px; }
-.banner { border-radius: 10px; padding: 12px 14px; margin-top: 14px; font-size: 14px; }
-.banner.ok { background: var(--accent-soft); }
-.banner.warn { background: var(--warn-soft); color: var(--warn); }
-.banner.bad { background: var(--err-soft); color: var(--err); }
-.banner .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.progress-head .t { font-weight: 600; font-size: 14px; }
+.progress-head .e { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.result { margin-top: 14px; padding: 12px 14px; border-radius: 7px; font-size: 14px; border-left: 3px solid var(--blue); background: var(--blue-soft); }
+.result.warn, .result.bad { border-left-color: var(--red); background: var(--red-soft); }
+.result .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.result .row .btn.primary { padding: 7px 16px; font-size: 14px; }
 details.log { margin-top: 12px; }
 details.log summary { cursor: pointer; color: var(--muted); font-size: 13px; }
-pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-size: 12px; max-height: 260px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+pre { background: var(--paper); border: 1px solid var(--rule); border-radius: 7px; padding: 10px; font-size: 12px; max-height: 240px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
 
+/* 지난 번역 */
+.history { margin-top: 40px; }
+.history h2 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
 .hist { list-style: none; margin: 0; padding: 0; }
-.hist li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
-.hist li:first-child { border-top: none; }
-.hist .n { font-weight: 600; word-break: break-all; }
-.hist .d { color: var(--muted); font-size: 12px; }
+.hist li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.hist .n { font: 15px/1.45 var(--serif); word-break: break-word; }
+.hist .d { color: var(--faint); font-size: 12px; margin-top: 2px; }
 .hist .b { display: flex; gap: 6px; flex: none; }
-.empty { color: var(--muted); font-size: 14px; }
-.engines { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 560px) { .engines { grid-template-columns: 1fr; } }
-.engine { border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; text-align: left; background: var(--panel); }
-.engine.sel { border-color: var(--accent); background: var(--accent-soft); }
-.engine .en { font-weight: 600; }
-.engine .es { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.engine .es.ok { color: var(--ok); }
-.engine .es.warn { color: var(--warn); }
-.engine .eb { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.engine .eb button { padding: 4px 10px; font-size: 13px; }
-.setup-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 24px; }
+.empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+footer { color: var(--faint); font-size: 12px; margin-top: 28px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { transition: none !important; animation: none !important; }
+}
 </style>
 </head>
 <body>
 <main>
-  <header>
+  <div class="top">
     <div>
       <h1>PDF 번역기</h1>
-      <p class="sub">영어 논문 PDF를 레이아웃 그대로 한국어로 옮깁니다</p>
+      <p>영어 논문을 같은 레이아웃의 한국어 PDF로 옮깁니다</p>
     </div>
-    <button class="link" id="folder" title="결과물이 저장되는 폴더를 엽니다">결과 폴더 열기</button>
-  </header>
+    <button class="quiet" id="folder">결과 폴더 열기</button>
+  </div>
 
-  <section class="card" id="engine">
-    <div class="setup-row">
-      <h2>번역 엔진</h2>
-      <button class="link" id="recheck">다시 확인</button>
-    </div>
-    <div class="engines" id="engines"><div class="empty">확인 중…</div></div>
-    <div class="hint" id="enginehint" style="font-size:12px;color:var(--muted);margin-top:8px">API 키 없이, 로그인한 내 계정의 구독 사용량으로 번역합니다.</div>
-  </section>
+  <div class="desk">
+    <!-- 종이: 파일을 놓는 곳이자 진행 상황을 보여 주는 곳 -->
+    <button class="sheet" id="sheet" aria-label="번역할 PDF 고르기">
+      <p class="title placeholder" id="fname">PDF를 여기에 놓으세요</p>
+      <div class="meta" id="fsize">또는 눌러서 파일을 고르세요</div>
+      <div class="lines" id="lines" aria-hidden="true"></div>
+      <div class="hint" id="sheethint"></div>
+    </button>
 
-  <section class="card" id="setup">
-    <div id="drop" tabindex="0" role="button" aria-label="PDF 파일 선택">
-      <div class="big">PDF 파일을 여기로 끌어다 놓으세요</div>
-      <div class="small">또는 눌러서 파일 선택</div>
-    </div>
-    <div id="chosen">
-      <div><div class="fname" id="fname"></div><div class="fsize" id="fsize"></div></div>
-      <button class="link" id="change">다른 파일</button>
-    </div>
+    <div class="controls">
+      <section class="block" aria-labelledby="enginelabel">
+        <p class="label" id="enginelabel">번역 엔진 <button class="quiet" id="recheck">다시 확인</button></p>
+        <div class="seg" id="seg" role="radiogroup" aria-labelledby="enginelabel"></div>
+        <p class="status" id="enginestatus">확인 중…</p>
+        <div class="status-actions" id="engineactions"></div>
+      </section>
 
-    <details class="settings">
-      <summary>설정</summary>
-      <div class="grid">
-        <div class="field">
-          <label class="t" for="pages">번역할 쪽</label>
-          <input type="text" id="pages" placeholder="전체 (예: 1-3,5)">
-          <div class="hint">비워 두면 전체를 번역합니다</div>
-        </div>
-        <div class="field">
-          <label class="t" for="overflow">한국어가 칸보다 길 때</label>
-          <select id="overflow">
-            <option value="push">아래 내용을 밀어 내림</option>
-            <option value="shrink">글자를 줄여 칸에 맞춤</option>
-          </select>
-        </div>
-        <div class="field" data-engine="claude">
-          <label class="t" for="model">번역 모델</label>
-          <select id="model">
-            <option value="sonnet">Sonnet (기본)</option>
-            <option value="opus">Opus (더 정확, 사용량 많음)</option>
-            <option value="haiku">Haiku (빠름, 사용량 적음)</option>
-          </select>
-        </div>
-        <div class="field" data-engine="claude">
-          <label class="t" for="review_model">원문 오류 검토 모델</label>
-          <select id="review_model">
-            <option value="opus">Opus (기본)</option>
-            <option value="sonnet">Sonnet (사용량 적음)</option>
-          </select>
-        </div>
-        <div class="field" data-engine="codex" hidden>
-          <label class="t" for="cx_effort">번역할 때 생각 정도</label>
-          <select id="cx_effort">
-            <option value="low">낮음 (빠름, 사용량 적음)</option>
-            <option value="medium" selected>보통 (기본)</option>
-            <option value="high">높음 (더 정확, 사용량 많음)</option>
-          </select>
-        </div>
-        <div class="field" data-engine="codex" hidden>
-          <label class="t" for="cx_review_effort">원문 오류 검토 생각 정도</label>
-          <select id="cx_review_effort">
-            <option value="medium">보통 (사용량 적음)</option>
-            <option value="high" selected>높음 (기본)</option>
-          </select>
-        </div>
-        <div class="field" data-engine="codex" hidden>
-          <label class="t" for="cx_model">GPT 모델 이름 (선택)</label>
-          <input type="text" id="cx_model" placeholder="비워 두면 Codex 기본 모델">
-          <div class="hint">특정 모델을 쓰려면 이름을 적으세요</div>
-        </div>
-        <label class="check"><input type="checkbox" id="review" checked><span>원문 오류에 역주 달기</span></label>
-        <label class="check"><input type="checkbox" id="verify" checked><span>번역 후 원문과 대조 검증</span></label>
-        <label class="check"><input type="checkbox" id="annotate" checked><span>번역한 용어 첫 등장 때 영어 병기<br><span class="hint">예: 손실 함수(loss function)</span></span></label>
-        <div class="field">
-          <label class="t" for="gloss">내 용어집 (선택)</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button id="gloss">파일 선택</button><span class="hint" id="glossname">선택 안 함</span>
-            <button class="link" id="glossclear" hidden>지우기</button>
+      <section class="block">
+        <details class="settings">
+          <summary>설정 <span class="sum" id="setsum"></span></summary>
+          <div class="grid">
+            <div class="field">
+              <label class="t" for="pages">번역할 쪽</label>
+              <input type="text" id="pages" placeholder="전체">
+              <div class="hint">예: 1-3,5</div>
+            </div>
+            <div class="field">
+              <label class="t" for="overflow">한국어가 칸보다 길 때</label>
+              <select id="overflow">
+                <option value="push">아래 내용을 밀어 내림</option>
+                <option value="shrink">글자를 줄여 칸에 맞춤</option>
+              </select>
+            </div>
+            <div class="field" data-engine="claude">
+              <label class="t" for="model">번역 모델</label>
+              <select id="model">
+                <option value="sonnet">Sonnet (기본)</option>
+                <option value="opus">Opus (더 정확, 사용량 많음)</option>
+                <option value="haiku">Haiku (빠름, 사용량 적음)</option>
+              </select>
+            </div>
+            <div class="field" data-engine="claude">
+              <label class="t" for="review_model">원문 오류 검토 모델</label>
+              <select id="review_model">
+                <option value="opus">Opus (기본)</option>
+                <option value="sonnet">Sonnet (사용량 적음)</option>
+              </select>
+            </div>
+            <div class="field" data-engine="codex" hidden>
+              <label class="t" for="cx_effort">번역할 때 생각 정도</label>
+              <select id="cx_effort">
+                <option value="low">낮음 (빠름, 사용량 적음)</option>
+                <option value="medium" selected>보통 (기본)</option>
+                <option value="high">높음 (더 정확, 사용량 많음)</option>
+              </select>
+            </div>
+            <div class="field" data-engine="codex" hidden>
+              <label class="t" for="cx_review_effort">원문 오류 검토 생각 정도</label>
+              <select id="cx_review_effort">
+                <option value="medium">보통 (사용량 적음)</option>
+                <option value="high" selected>높음 (기본)</option>
+              </select>
+            </div>
+            <div class="field wide" data-engine="codex" hidden>
+              <label class="t" for="cx_model">GPT 모델 이름</label>
+              <input type="text" id="cx_model" placeholder="비워 두면 Codex 기본 모델">
+            </div>
+            <label class="check"><input type="checkbox" id="review" checked><span>원문 오류에 역주 달기</span></label>
+            <label class="check"><input type="checkbox" id="verify" checked><span>번역 후 원문과 대조 검증</span></label>
+            <label class="check wide"><input type="checkbox" id="annotate" checked><span>번역한 용어가 처음 나올 때 영어 함께 적기<span class="hint">예: 손실 함수(loss function)</span></span></label>
+            <div class="field wide">
+              <label class="t">내 용어집</label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button class="btn" id="gloss">JSON 파일 고르기</button><span class="hint" id="glossname">고르지 않음</span>
+                <button class="quiet" id="glossclear" hidden>빼기</button>
+              </div>
+            </div>
           </div>
-          <div class="hint">번역어를 직접 정한 JSON 파일</div>
+        </details>
+      </section>
+
+      <section class="block">
+        <div class="start-row">
+          <button class="btn primary" id="start" disabled>번역 시작</button>
+          <span class="err" id="err" role="alert"></span>
         </div>
-      </div>
-    </details>
+      </section>
 
-    <div class="actions">
-      <button class="primary" id="start" disabled>번역 시작</button>
-      <span class="err" id="err"></span>
+      <section class="block" id="progress" hidden aria-live="polite">
+        <div class="progress-head"><span class="t" id="pnote">진행 상황</span><span class="e" id="elapsed"></span></div>
+        <ol class="steps" id="steps"></ol>
+        <div id="result"></div>
+        <div class="start-row" style="margin-top:14px"><button class="btn danger" id="cancel">번역 중지</button></div>
+        <details class="log"><summary>진행 기록 보기</summary><pre id="log"></pre></details>
+      </section>
     </div>
-  </section>
+  </div>
 
-  <section class="card" id="progress" hidden>
-    <h2 id="ptitle">번역 중</h2>
-    <ol class="steps" id="steps"></ol>
-    <div class="bar"><div id="barfill"></div></div>
-    <div class="meta"><span id="pnote"></span><span id="elapsed"></span></div>
-    <div id="result"></div>
-    <div class="actions" id="pactions">
-      <button id="cancel">중지</button>
-    </div>
-    <details class="log"><summary>진행 기록 보기</summary><pre id="log"></pre></details>
-  </section>
-
-  <section class="card">
+  <section class="history">
     <h2>지난 번역</h2>
     <ul class="hist" id="hist"></ul>
   </section>
 
-  <footer>결과물은 ‘문서 › PDF 번역’ 폴더에 저장됩니다 · 번역에는 로그인된 <span id="footlabel">Claude</span> 계정 사용량이 쓰입니다</footer>
+  <footer>결과물은 문서 › PDF 번역 폴더에 저장됩니다.</footer>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
-let file = null, jobId = null, timer = null;
+let file = null, jobId = null, timer = null, running = false;
 
 const STEPS = [
   { key: "analyze", label: "PDF 분석", tag: "[분석]" },
@@ -237,33 +269,48 @@ const WEIGHT = { analyze: 3, glossary: 10, review: 15, translate: 45, verify: 22
 
 function fmtSize(n) { return n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : Math.round(n / 1e3) + " KB"; }
 function fmtTime(s) { s = Math.round(s); return s < 60 ? s + "초" : Math.floor(s / 60) + "분 " + (s % 60) + "초"; }
-function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
-
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
 const api = () => window.pywebview.api;
 let glossary = null;
 let engine = "claude", setup = null, isWin = false;
+
+// ---- 종이의 줄: 문단처럼 길이가 다른 줄. 번역이 진행되면 위에서부터 잉크색으로 채운다
+const LINE_W = [100, 96, 98, 92, 64, 0, 97, 100, 94, 99, 71, 0, 98, 95, 100, 88, 52];
+function drawLines() {
+  $("lines").innerHTML = LINE_W.map((w) => (w ? `<i style="width:${w}%"></i>` : `<i class="gap"></i>`)).join("");
+}
+function inkLines(pct) {
+  const bars = [...$("lines").querySelectorAll("i:not(.gap)")];
+  const n = Math.round((bars.length * pct) / 100);
+  bars.forEach((b, i) => b.classList.toggle("ink", i < n));
+}
+drawLines();
 
 // ---- 번역 엔진 (Claude Code / Codex) 준비 상태
 const TOOL = { claude: "Claude Code", codex: "Codex" };
 function engineReady(name) { const e = setup && setup.engines[name]; return !!(e && e.installed && e.logged_in); }
 function renderEngines() {
   if (!setup) return;
-  $("engines").innerHTML = Object.entries(setup.engines).map(([name, e]) => {
-    let st, cls, btns = "";
-    if (!e.installed) { st = `${TOOL[name]} 설치 필요`; cls = "warn"; btns = `<button data-install="${name}">설치하기</button>`; }
-    else if (!e.logged_in) { st = `${e.label} 로그인 필요`; cls = "warn"; btns = `<button data-login="${name}">로그인하기</button>`; }
-    else { st = "준비됨 ✓"; cls = "ok"; }
-    return `<div class="engine ${name === engine ? "sel" : ""}" data-engine-pick="${name}" role="button" tabindex="0">
-      <div class="en">${esc(e.label)}</div><div class="es ${cls}">${esc(st)}</div>
-      ${btns ? `<div class="eb">${btns}</div>` : ""}</div>`;
-  }).join("");
+  $("seg").innerHTML = Object.entries(setup.engines).map(([name, e]) =>
+    `<button role="radio" aria-checked="${name === engine}" data-engine-pick="${name}">${esc(e.label)}${engineReady(name) || name === engine ? "" : `<span class="dot" title="준비 필요"></span>`}</button>`
+  ).join("");
   document.querySelectorAll("[data-engine]").forEach((el) => { el.hidden = el.dataset.engine !== engine; });
-  $("footlabel").textContent = setup.engines[engine].label;
   const e = setup.engines[engine];
-  $("enginehint").textContent = engineReady(engine)
-    ? `API 키 없이, 로그인한 내 ${e.label} 계정의 구독 사용량으로 번역합니다.`
-    : (!e.installed ? `‘설치하기’를 누르면 터미널 창이 열려 ${TOOL[engine]}를 설치합니다. 끝나면 ‘로그인하기’를 누르세요.`
-                     : `‘로그인하기’를 누르면 터미널 창(또는 브라우저)이 열립니다. 로그인을 마치고 ‘다시 확인’을 누르세요.`);
+  const st = $("enginestatus"), act = $("engineactions");
+  if (!e.installed) {
+    st.className = "status";
+    st.textContent = `${TOOL[engine]}가 설치되어 있지 않습니다. 설치하면 터미널 창이 열리고, 끝나면 로그인합니다.`;
+    act.innerHTML = `<button class="btn" data-install="${engine}">${TOOL[engine]} 설치</button>`;
+  } else if (!e.logged_in) {
+    st.className = "status";
+    st.textContent = `${e.label} 계정에 로그인해야 합니다. 로그인을 마치고 ‘다시 확인’을 누르세요.`;
+    act.innerHTML = `<button class="btn" data-login="${engine}">${esc(e.label)} 로그인</button>`;
+  } else {
+    st.className = "status ok";
+    st.textContent = `준비됨. 로그인한 ${e.label} 계정의 구독 사용량으로 번역합니다.`;
+    act.innerHTML = "";
+  }
+  updateSummary();
 }
 async function checkSetup() {
   $("recheck").disabled = true;
@@ -273,17 +320,20 @@ async function checkSetup() {
 function pickEngine(name) { engine = name; renderEngines(); saveSettings(); }
 document.addEventListener("click", async (e) => {
   const ins = e.target.closest("[data-install]"), lg = e.target.closest("[data-login]");
-  if (ins) { e.stopPropagation(); await api().install_engine(ins.dataset.install); return; }
-  if (lg) { e.stopPropagation(); await api().login_engine(lg.dataset.login); return; }
+  if (ins) { await api().install_engine(ins.dataset.install); return; }
+  if (lg) { await api().login_engine(lg.dataset.login); return; }
   const pk = e.target.closest("[data-engine-pick]"); if (pk) pickEngine(pk.dataset.enginePick);
 });
-document.addEventListener("keydown", (e) => {
-  const pk = e.target.closest && e.target.closest("[data-engine-pick]");
-  if (pk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pickEngine(pk.dataset.enginePick); }
+$("seg").addEventListener("keydown", (e) => {
+  if (!setup || !["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+  const names = Object.keys(setup.engines);
+  const i = (names.indexOf(engine) + (e.key === "ArrowRight" ? 1 : names.length - 1)) % names.length;
+  pickEngine(names[i]); $("seg").querySelector(`[data-engine-pick="${names[i]}"]`).focus();
 });
 $("recheck").onclick = checkSetup;
 window.addEventListener("focus", () => { if (setup && !engineReady(engine)) checkSetup(); });
 
+// ---- 설정 기억
 const SAVED = ["model", "review_model", "cx_effort", "cx_review_effort", "cx_model", "overflow"];
 function saveSettings() {
   const d = { engine }; SAVED.forEach((k) => (d[k] = $(k).value));
@@ -294,7 +344,9 @@ async function loadSettings() {
   if (d.engine) engine = d.engine;
   SAVED.forEach((k) => { if (d[k] !== undefined && d[k] !== null) $(k).value = d[k]; });
 }
-SAVED.forEach((k) => $(k).addEventListener("change", saveSettings));
+SAVED.forEach((k) => $(k).addEventListener("change", () => { saveSettings(); updateSummary(); }));
+["pages", "review", "verify"].forEach((k) => $(k).addEventListener("change", updateSummary));
+$("pages").addEventListener("input", updateSummary);
 function modelOptions() {
   if (engine === "codex") {
     const name = $("cx_model").value.trim();
@@ -302,40 +354,51 @@ function modelOptions() {
   }
   return { model: $("model").value, review_model: $("review_model").value };
 }
+function updateSummary() {
+  const sel = (id) => $(id).selectedOptions[0].textContent.replace(/ \(.*\)/, "");
+  const parts = [$("pages").value.trim() ? `${$("pages").value.trim()}쪽` : "전체 쪽"];
+  parts.push(engine === "codex" ? `생각 정도 ${sel("cx_effort")}` : sel("model"));
+  if (!$("review").checked) parts.push("역주 없음");
+  if (!$("verify").checked) parts.push("검증 없음");
+  $("setsum").textContent = parts.join(", ");
+}
 
+// ---- 파일 고르기
 function choose(info) {
   if (!info) return;
   if (!/\.pdf$/i.test(info.name)) { $("err").textContent = "PDF 파일만 번역할 수 있습니다."; return; }
   file = info; $("err").textContent = "";
-  $("fname").textContent = info.name; $("fsize").textContent = fmtSize(info.size);
-  $("drop").style.display = "none"; $("chosen").style.display = "flex";
-  $("start").disabled = false;
+  $("fname").textContent = info.name.replace(/\.pdf$/i, ""); $("fname").classList.remove("placeholder");
+  $("fsize").textContent = `${fmtSize(info.size)} PDF`;
+  $("sheethint").innerHTML = running ? "" : "다른 파일을 쓰려면 <b>눌러서 바꾸기</b>";
+  inkLines(0);
+  $("start").disabled = running;
 }
-async function pick() { choose(await api().pick_pdf()); }
-$("drop").onclick = pick;
-$("drop").onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") pick(); };
-$("change").onclick = pick;
+async function pick() { if (running) return; choose(await api().pick_pdf()); }
+$("sheet").onclick = pick;
 $("folder").onclick = () => api().open_folder();
 $("gloss").onclick = async () => {
   const g = await api().pick_glossary();
   if (g) { glossary = g.path; $("glossname").textContent = g.name; $("glossclear").hidden = false; }
 };
-$("glossclear").onclick = () => { glossary = null; $("glossname").textContent = "선택 안 함"; $("glossclear").hidden = true; };
+$("glossclear").onclick = () => { glossary = null; $("glossname").textContent = "고르지 않음"; $("glossclear").hidden = true; };
 
 // 끌어다 놓기: 앱 창은 놓인 파일의 실제 경로(pywebviewFullPath)를 알려 준다
-["dragenter", "dragover"].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
-document.addEventListener("dragleave", (e) => { if (!e.relatedTarget) $("drop").classList.remove("over"); });
+["dragenter", "dragover"].forEach((t) => document.addEventListener(t, (e) => { e.preventDefault(); if (!running) $("sheet").classList.add("over"); }));
+document.addEventListener("dragleave", (e) => { if (!e.relatedTarget) $("sheet").classList.remove("over"); });
 document.addEventListener("drop", async (e) => {
-  e.preventDefault(); $("drop").classList.remove("over");
+  e.preventDefault(); $("sheet").classList.remove("over");
+  if (running) return;
   const f = e.dataTransfer.files[0]; if (!f) return;
   const path = f.pywebviewFullPath;
-  if (!path) { $("err").textContent = "이 파일 경로를 읽지 못했습니다. 눌러서 파일을 선택해 주세요."; return; }
+  if (!path) { $("err").textContent = "이 파일의 경로를 읽지 못했습니다. 종이를 눌러 파일을 골라 주세요."; return; }
   choose(await api().file_info(path));
 });
 
+// ---- 시작과 진행
 $("start").onclick = async () => {
   if (!file) return;
-  if (!engineReady(engine)) { $("err").textContent = `${setup ? setup.engines[engine].label : "번역 엔진"} 준비가 끝나지 않았습니다. 위의 ‘번역 엔진’에서 설치·로그인해 주세요.`; return; }
+  if (!engineReady(engine)) { $("err").textContent = `${setup ? setup.engines[engine].label : "번역 엔진"} 준비가 끝나지 않았습니다. 위에서 설치하고 로그인해 주세요.`; return; }
   $("start").disabled = true; $("err").textContent = "";
   const j = await api().start({
     path: file.path, glossary,
@@ -345,14 +408,20 @@ $("start").onclick = async () => {
       verify: $("verify").checked, annotate: $("annotate").checked,
     },
   });
-  if (!j || j.error) { $("err").textContent = (j && j.error) || "시작하지 못했습니다"; $("start").disabled = false; return; }
+  if (!j || j.error) { $("err").textContent = (j && j.error) || "번역을 시작하지 못했습니다."; $("start").disabled = false; return; }
   watch(j.id);
 };
 
+function setRunning(on) {
+  running = on;
+  $("sheet").classList.toggle("busy", on);
+  $("sheet").setAttribute("aria-disabled", on ? "true" : "false");
+  $("sheethint").innerHTML = on ? "" : (file ? "다른 파일을 쓰려면 <b>눌러서 바꾸기</b>" : "");
+}
+
 function watch(id) {
-  jobId = id;
+  jobId = id; setRunning(true);
   $("progress").hidden = false; $("result").innerHTML = ""; $("cancel").hidden = false;
-  $("progress").scrollIntoView({ behavior: "smooth", block: "start" });
   clearInterval(timer);
   timer = setInterval(poll, 1000); poll();
 }
@@ -364,7 +433,6 @@ function stageInfo(log, status) {
     const m = line.match(/\[번역\] (\d+)\/(\d+) 묶음/); if (m) tr = [+m[1], +m[2]];
   }
   const skipped = new Set();
-  // 건너뛴 단계: 뒤 단계가 이미 시작됐는데 기록이 없는 경우
   const idx = STEPS.findIndex((s) => s.key === last);
   STEPS.forEach((s, i) => { if (i < idx && !seen.has(s.key)) skipped.add(s.key); });
   if (status === "done") last = "done";
@@ -389,18 +457,18 @@ async function poll() {
     else if (i === info.idx && j.status === "running") cls = "active";
     let extra = "";
     if (info.skipped.has(s.key)) extra = "건너뜀";
-    if (s.key === "translate" && info.tr) extra = `${info.tr[0]} / ${info.tr[1]} 묶음`;
-    return `<li class="${cls}"><span class="dot"></span>${s.label}${extra ? ` <span class="extra">· ${extra}</span>` : ""}</li>`;
+    if (s.key === "translate" && info.tr) extra = `${info.tr[0]}/${info.tr[1]} 묶음`;
+    return `<li class="${cls}"><span>${s.label}${extra ? `<span class="extra">${extra}</span>` : ""}</span></li>`;
   }).join("");
-  $("barfill").style.width = (j.status === "done" ? 100 : info.pct) + "%";
+  inkLines(j.status === "done" ? 100 : info.pct);
   $("elapsed").textContent = fmtTime(j.elapsed);
-  $("ptitle").textContent = `${j.name}`;
-  $("pnote").textContent = "";
+  $("pnote").textContent = { running: "번역 중", done: "번역 완료", paused: "멈춤", cancelled: "중지됨" }[j.status] || "번역 실패";
+  if (!file) { $("fname").textContent = j.name; $("fname").classList.remove("placeholder"); $("fsize").textContent = ""; }
   const logEl = $("log"); const atBottom = logEl.scrollTop + logEl.clientHeight >= logEl.scrollHeight - 8;
   logEl.textContent = j.log.join("\n"); if (atBottom) logEl.scrollTop = logEl.scrollHeight;
 
   if (j.status !== "running") {
-    clearInterval(timer); $("cancel").hidden = true; $("start").disabled = !file;
+    clearInterval(timer); setRunning(false); $("cancel").hidden = true; $("start").disabled = !file;
     showResult(j); loadHistory();
   }
 }
@@ -413,52 +481,51 @@ function summaryLine(log) {
 
 function showResult(j) {
   const buttons = j.output ? `<div class="row">
-      <button class="primary" data-open="${esc(j.output)}">번역본 열기</button>
-      <button data-open="${esc(j.output)}" data-reveal="1">${isWin ? "탐색기에서 보기" : "Finder에서 보기"}</button>
-      ${j.qa ? `<button data-open="${esc(j.qa)}">검사 결과 보기</button>` : ""}
+      <button class="btn primary" data-open="${esc(j.output)}">번역본 열기</button>
+      <button class="btn" data-open="${esc(j.output)}" data-reveal="1">${isWin ? "탐색기에서 보기" : "Finder에서 보기"}</button>
+      ${j.qa ? `<button class="btn" data-open="${esc(j.qa)}">검사 결과 보기</button>` : ""}
     </div>` : "";
-  let html = "";
-  if (j.status === "done") html = `<div class="banner ok"><b>번역이 끝났습니다.</b> ${esc(summaryLine(j.log))}${buttons}</div>`;
-  else if (j.status === "paused") html = `<div class="banner warn"><b>${esc(j.engine_label || "")} 사용량 한도에 걸려 멈췄습니다.</b> 지금까지 번역한 부분은 저장했습니다. 한도가 풀린 뒤 같은 파일로 다시 시작하면 남은 부분부터 이어서 합니다.${buttons}</div>`;
-  else if (j.status === "cancelled") html = `<div class="banner warn"><b>중지했습니다.</b> 같은 파일로 다시 시작하면 이어서 합니다.</div>`;
+  let cls = "result", html = "";
+  if (j.status === "done") html = `<b>번역을 마쳤습니다.</b> ${esc(summaryLine(j.log))}${buttons}`;
+  else if (j.status === "paused") { cls += " warn"; html = `<b>${esc(j.engine_label || "")} 사용량 한도에 걸려 멈췄습니다.</b> 번역한 부분은 저장했습니다. 한도가 풀린 뒤 같은 파일로 다시 시작하면 남은 부분부터 이어서 합니다.${buttons}`; }
+  else if (j.status === "cancelled") { cls += " warn"; html = `<b>번역을 중지했습니다.</b> 같은 파일로 다시 시작하면 이어서 합니다.`; }
   else {
+    cls += " bad";
     const reason = j.log.filter((l) => /오류|Error|error|찾을 수 없습니다|없습니다/.test(l)).slice(-3).join("\n");
-    html = `<div class="banner bad"><b>번역하지 못했습니다.</b><br>${esc(reason || "진행 기록을 확인해 주세요.")}${buttons}</div>`;
+    html = `<b>번역하지 못했습니다.</b><br>${esc(reason || "진행 기록에서 원인을 확인해 주세요.")}${buttons}`;
   }
-  $("result").innerHTML = html;
+  $("result").innerHTML = `<div class="${cls}">${html}</div>`;
 }
 
-async function openPath(path, reveal = false) {
-  await api().open(path, reveal);
-}
 document.addEventListener("click", (e) => {
   const b = e.target.closest("[data-open]");
-  if (b) openPath(b.dataset.open, !!b.dataset.reveal);
+  if (b) api().open(b.dataset.open, !!b.dataset.reveal);
 });
 
 $("cancel").onclick = async () => {
-  if (!confirm("번역을 중지할까요? 지금까지 번역한 부분은 저장되어, 다시 시작하면 이어서 합니다.")) return;
+  if (!confirm("번역을 중지할까요? 번역한 부분은 저장되어, 다시 시작하면 이어서 합니다.")) return;
   await api().cancel(jobId);
 };
 
 async function loadHistory() {
   const items = await api().history();
   $("hist").innerHTML = items.length ? items.map((i) => `<li>
-      <div><div class="n">${esc(i.name)}</div><div class="d">${new Date(i.mtime * 1000).toLocaleString("ko-KR")}</div></div>
+      <div><div class="n">${esc(i.name)}</div><div class="d">${new Date(i.mtime * 1000).toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" })}</div></div>
       <div class="b">
-        <button data-open="${esc(i.output)}">열기</button>
-        <button data-open="${esc(i.output)}" data-reveal="1">폴더</button>
-      </div></li>`).join("") : `<li class="empty">아직 번역한 파일이 없습니다.</li>`;
+        <button class="btn" data-open="${esc(i.output)}">열기</button>
+        <button class="btn" data-open="${esc(i.output)}" data-reveal="1">폴더에서 보기</button>
+      </div></li>`).join("") : `<li class="empty">아직 번역한 파일이 없습니다. 위의 종이에 PDF를 놓아 시작하세요.</li>`;
 }
 
-// 페이지를 새로 열었을 때 진행 중인 작업이 있으면 이어서 보여 준다
+// 창을 새로 열었을 때 진행 중인 작업이 있으면 이어서 보여 준다
 window.addEventListener("pywebviewready", async () => {
   await loadSettings();
+  updateSummary();
   checkSetup();
   loadHistory();
   const jobs = await api().jobs();
-  const running = jobs.find((j) => j.status === "running");
-  if (running) watch(running.id);
+  const r = jobs.find((j) => j.status === "running");
+  if (r) watch(r.id);
 });
 </script>
 </body>

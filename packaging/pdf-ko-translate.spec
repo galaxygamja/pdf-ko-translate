@@ -8,7 +8,7 @@ from PyInstaller.utils.hooks import collect_submodules
 ROOT = Path(SPECPATH).parent
 PKG = ROOT / "src" / "pdf_ko_translate"
 NAME = "PDF 번역기"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 ICON = str(PKG / "web" / "icon.png")  # Pillow가 있으면 .icns/.ico로 자동 변환
 
 hidden = collect_submodules("pdf_ko_translate") + collect_submodules("fontTools.ttLib")

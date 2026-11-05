@@ -1,6 +1,6 @@
 [project]
 name = "pdf-ko-translate"
-version = "0.2.0"
+version = "0.2.1"
 description = "영어 PDF를 레이아웃을 유지한 채 한국어로 번역"
 readme = "README.md"
 authors = [
