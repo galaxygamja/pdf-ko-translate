@@ -44,16 +44,11 @@ jobs:
       - name: PyInstaller 빌드
         run: uv run --group build pyinstaller packaging/pdf-ko-translate.spec --noconfirm --distpath build/dist --workpath build/work
 
-      # ---------------- 맥: 서명 없이 ad-hoc 서명 → dmg
-      - name: ad-hoc 서명 (Apple Silicon은 서명 없는 앱을 실행하지 않음)
+      # ---------------- 맥: dmg
+      # PyInstaller가 BUNDLE 단계에서 ad-hoc 서명까지 한다 (Apple Silicon은 서명 없는 앱을 실행하지 않음). 여기서는 확인만
+      - name: 서명 확인
         if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          APP="build/dist/PDF 번역기.app"
-          find "$APP/Contents" -type f \( -name "*.dylib" -o -name "*.so" -o -perm +111 \) -print0 |
-            while IFS= read -r -d '' f; do file "$f" | grep -q Mach-O && codesign --force -s - "$f"; done
-          codesign --force -s - "$APP"
-          codesign --verify --deep --strict --verbose=2 "$APP"
+        run: codesign --verify --deep --strict --verbose=2 "build/dist/PDF 번역기.app"
 
       - name: dmg 만들기
         if: runner.os == 'macOS'

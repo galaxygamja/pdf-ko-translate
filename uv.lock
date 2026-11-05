@@ -2,6 +2,9 @@ version = 1
 revision = 5
 requires-python = ">=3.12"
 
+[manifest]
+overrides = [{ name = "onnxruntime", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" }]
+
 [[package]]
 name = "altgraph"
 version = "0.17.5"
@@ -488,7 +491,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "networkx" },
     { name = "numpy" },
-    { name = "onnxruntime" },
+    { name = "onnxruntime", marker = "platform_machine != 'x86_64' or sys_platform != 'darwin'" },
     { name = "psutil" },
     { name = "pymupdf-layout" },
     { name = "pymupdf4llm" },
