@@ -15,8 +15,9 @@ API 키 없이, 로그인한 내 계정의 구독 사용량으로 번역합니�
 | 컴퓨터 | 받을 파일 |
 |---|---|
 | 윈도우 10/11 | `PDF-Translator-Setup-<버전>.exe` |
-| 맥 (M1~M4 등 Apple 칩) | `PDF-Translator-<버전>-mac-apple-silicon.dmg` |
-| 맥 (Intel) | `PDF-Translator-<버전>-mac-intel.dmg` |
+| 맥 (M1 이후 Apple 칩) | `PDF-Translator-<버전>-mac-apple-silicon.dmg` |
+
+Intel 맥은 지원하지 않습니다.
 
 이 앱은 유료 개발자 인증서로 서명하지 않았기 때문에 처음 열 때 경고가 나옵니다.
 
@@ -141,7 +142,7 @@ PDFKO_SERIF=~/Library/Fonts/NotoSerifKR-Regular.otf pdf-ko-translate 논문.pdf
 
 ## 배포판 만들기 (GitHub Actions)
 
-`v`로 시작하는 태그를 올리면 `.github/workflows/release.yml`이 윈도우 설치 파일과 맥 dmg 두 가지(Apple Silicon·Intel)를 만들어 GitHub Release에 올립니다.
+`v`로 시작하는 태그를 올리면 `.github/workflows/release.yml`이 윈도우 설치 파일과 맥 dmg(Apple Silicon)를 만들어 GitHub Release에 올립니다.
 
 ```bash
 git tag v0.2.0 && git push origin v0.2.0

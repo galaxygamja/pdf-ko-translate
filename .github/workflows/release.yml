@@ -1,4 +1,4 @@
-# v* 태그를 올리면 윈도우 설치 파일과 맥 dmg(Apple Silicon·Intel)를 만들어 GitHub Release에 올린다.
+# v* 태그를 올리면 윈도우 설치 파일과 맥 dmg(Apple Silicon 전용)를 만들어 GitHub Release에 올린다.
 #   git tag v0.2.0 && git push origin v0.2.0
 # 수동 실행(workflow_dispatch)은 빌드 결과를 Actions 아티팩트로만 남긴다.
 name: release
@@ -21,8 +21,6 @@ jobs:
             target: windows-x64
           - os: macos-14
             target: mac-apple-silicon
-          - os: macos-15-intel
-            target: mac-intel
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

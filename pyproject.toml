@@ -9,9 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "fonttools>=4.67.0",
-    # PyMuPDF 2.0은 Intel 맥용 배포판이 없다. Intel 맥만 1.28 계열을 쓴다 (출력이 같음을 확인함)
-    "pymupdf>=2.0; sys_platform != 'darwin' or platform_machine != 'x86_64'",
-    "pymupdf>=1.28,<2; sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "pymupdf>=2.0",
     "pywebview>=6.2.1",
     "pythonnet>=3.0; sys_platform == 'win32'",
 ]
